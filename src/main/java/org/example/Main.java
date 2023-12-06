@@ -77,6 +77,27 @@ public class Main {
         return data;
     }
 
+    public void selectAll(int num){
+        String sql = "SELECT * FROM process_data INNER JOIN processnum_data ON process_data.operationID = processnum_data.operationID " +
+                "WHERE numOfProcess = ?";
+
+            try (Connection conn = connect();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setInt(1, num);  // Set the value for the placeholder
+                ResultSet rs = pstmt.executeQuery();
+
+                // Check if there is a result before trying to retrieve data
+                while (rs.next()) {
+                    System.out.println(rs.getInt("id") +  "\t" +
+                            rs.getString("name") + "\t" +
+                            rs.getDouble("capacity"));
+                }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public static Connection connect() {
         Connection conn = null;
         try {
