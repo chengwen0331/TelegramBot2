@@ -13,7 +13,8 @@ public class CreateTable {
         // SQL statement for creating a new table
         String sql1 = "CREATE TABLE IF NOT EXISTS processnum_data (\n"
                 + " operationID INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-                + " numOfProcess INTEGER NOT NULL\n"
+                + " numOfProcess INTEGER NOT NULL, \n"
+                + " quantumNum INTEGER NOT NULL\n"
                 + ");";
 
         String sql2 = "CREATE TABLE IF NOT EXISTS process_data (\n"

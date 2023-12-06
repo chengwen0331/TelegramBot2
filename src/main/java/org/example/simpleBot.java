@@ -10,9 +10,9 @@ public class simpleBot extends TelegramLongPollingBot {
     private int numOfProcess;
     private int currentProcessIndex = 0;
 
-    private String[] processID;
-    private int[] burstTime;
-    private int[] arrivalTime;
+    private String processID;
+    private int burstTime;
+    private int arrivalTime;
     private int quantumNum;
     @Override
     public String getBotUsername() {
@@ -136,6 +136,7 @@ public class simpleBot extends TelegramLongPollingBot {
                         if(num > 0) {
                             try {
                                 quantumNum = Integer.parseInt(messageText);
+                                Main.processInput(numOfProcess, quantumNum);
                                 response.setText("Quantum number saved successfully.");
                                 execute(response);
                                 // Ask for process details
@@ -167,12 +168,13 @@ public class simpleBot extends TelegramLongPollingBot {
                         // Process user input for process details
                         //askForProcessDetails();
                         processUserInput(messageText, chatId);
+                        Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
 
                         // If all processes are entered, perform further processing
                         if (currentProcessIndex == numOfProcess) {
                             // Call the method in the Main class to perform further processing
-                            Main.processInput(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
-
+                            //Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
+                            //retrieve data
                             // Reset for the next interaction
                             resetBotState();
                         } else {
@@ -186,7 +188,7 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleUserResponse(Update update) {
+    /*private void handleUserResponse(Update update) {
         String userResponse = update.getMessage().getText();
         SendMessage response = new SendMessage();
         String successMessage = "Number of process saved successfully\n" +
@@ -206,7 +208,7 @@ public class simpleBot extends TelegramLongPollingBot {
             // Handle the case where the user didn't provide a valid number
             e.printStackTrace();
         }
-    }
+    }*/
 
     private void askForQuantumNum() {
         SendMessage response = new SendMessage();
@@ -235,8 +237,10 @@ public class simpleBot extends TelegramLongPollingBot {
     }
 
     private void processUserInput(String userInput, String chatId) {
+        // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
+        String[] parts = userInput.split("_");
         // Check if the input contains the underscore character
-        if (!userInput.contains("_")) {
+        if (!userInput.contains("_") || parts.length != 3) {
             // Handle the case where the input format is incorrect
             SendMessage response = new SendMessage();
             response.setChatId(String.valueOf(chatId));
@@ -248,22 +252,33 @@ public class simpleBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-        // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
-        String[] parts = userInput.split("_");
+        else {
+            try {
+                // Assuming parts[0] is process ID, parts[1] is burst time, and parts[2] is arrival time
+                processID = parts[0];
+                burstTime= Integer.parseInt(parts[1]);
+                arrivalTime = Integer.parseInt(parts[2]);
 
-        // Assuming parts[0] is process ID, parts[1] is burst time, and parts[2] is arrival time
-        processID[currentProcessIndex] = parts[0];
-        burstTime[currentProcessIndex] = Integer.parseInt(parts[1]);
-        arrivalTime[currentProcessIndex] = Integer.parseInt(parts[2]);
-
-        currentProcessIndex++;
+                currentProcessIndex++;
+            } catch (NumberFormatException e) {
+                // Handle the case where BurstTime or ArrivalTime is not a valid integer
+                SendMessage response = new SendMessage();
+                response.setChatId(String.valueOf(chatId));
+                response.setText("Invalid input format. BurstTime and ArrivalTime must be valid integers.");
+                try {
+                    execute(response);
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
     private void resetBotState() {
         numOfProcess = 0;
-        processID = new String[0];
-        burstTime = new int[0];
-        arrivalTime = new int[0];
+        processID = "";
+        burstTime = 0;
+        arrivalTime = 0;
         currentProcessIndex = 0;
     }
 
