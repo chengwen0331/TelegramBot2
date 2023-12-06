@@ -10,16 +10,20 @@ import java.sql.DatabaseMetaData;
 
 public class Main {
     public static void main(String[] args) throws TelegramApiException {
+
+        connect();
+        CreateTable generate = new CreateTable();
+        generate.createNewTable();
+
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(new simpleBot());
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        connect();
     }
 
-    public static void processInput(int numOfProcess, String[] processID) {
+    public static void processInput(int numOfProcess, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Your logic to process the input goes here
         System.out.println("Processing input...");
         System.out.println("Number of processes: " + numOfProcess);
@@ -53,5 +57,6 @@ public class Main {
             }
         }
     }
+
 
 }

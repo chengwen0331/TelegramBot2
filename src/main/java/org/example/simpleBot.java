@@ -7,9 +7,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class simpleBot extends TelegramLongPollingBot {
 
-    private int numOfProcess = 0;
+    private int numOfProcess;
     private int currentProcessIndex = 0;
+
     private String[] processID;
+    private int[] burstTime;
+    private int[] arrivalTime;
     @Override
     public String getBotUsername() {
         return "Wen0331_Bot";
@@ -22,37 +25,37 @@ public class simpleBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                String messageText = update.getMessage().getText();
-                SendMessage response = new SendMessage();
-                if (messageText.equals("/processnum")) {
-                    // Ask the user for input
-                    String message = "Please enter the number of process";
-                    //SendMessage response = new SendMessage();
+        if (update.hasMessage()) {
+            //if (update.hasMessage() && update.getMessage().hasText()) {
+            String messageText = update.getMessage().getText(); //user input
+            SendMessage response = new SendMessage(); //telegram response
+            switch(messageText){
+                /*case "/processnum":
                     response.setChatId(update.getMessage().getChatId().toString());
-                    response.setText(message);
+                    response.setText("Please enter the number of processes");
                     try {
+                        System.out.println("Yes");
                         execute(response);
-                        String userInput = update.getMessage().getText();
-                        numOfProcess = Integer.parseInt(userInput);
+                        System.out.println("No");
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
+                        System.out.println(e.getMessage());
                     }
-
-                }
-                else if (messageText.equals("/displaynum")) {
+                    finally {
+                        System.out.println("The 'try catch' is finished.");
+                    }
+                    break;
+                case "/displaynum":
                     response.setChatId(update.getMessage().getChatId().toString());
                     String message = Integer.toString(numOfProcess);
                     response.setText("The number of process is " + message);
-                    //sendMessage(update.getMessage().getChatId(), "Please input the process ID for process " + (currentProcessIndex + 1) + ":");
-
                     try {
                         execute(response);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
-                }
-                else if (messageText.equals("/getprocessid")) {
+                    break;
+                case "/getprocessid":
                     if (numOfProcess > 0 && currentProcessIndex < numOfProcess) {
                         // Ask the user for the process ID for the current process index
                         response.setChatId(update.getMessage().getChatId().toString());
@@ -69,40 +72,124 @@ public class simpleBot extends TelegramLongPollingBot {
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
-                }
-                else if (messageText.equals("/terminate")) {
+                    break;*/
+                case "/start":
                     response.setChatId(update.getMessage().getChatId().toString());
-                    response.setText("Session Terminate\nThank you! ");
-                    //sendMessage(update.getMessage().getChatId(), "Please input the process ID for process " + (currentProcessIndex + 1) + ":");
-
+                    response.setText("Please enter the number of processes");
                     try {
                         execute(response);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
-                }
-                else {
-                    // Assuming this is where you collect and store the process ID
-                    if (currentProcessIndex < numOfProcess) {
-                        // Assuming the user's response is the process ID
-                        processID[currentProcessIndex] = messageText;
-                        currentProcessIndex++;
+                    finally {
+                        System.out.println("The 'try catch' is finished.");
+                    }
+                    break;
+                case "/terminate":
+                    response.setChatId(update.getMessage().getChatId().toString());
+                    response.setText("Session Terminate\nThank you! ");
+                    try {
+                        execute(response);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                default:
+                    //handleUserResponse(update);
+                    if (numOfProcess == 0) {
+                        try {
+                            numOfProcess = Integer.parseInt(messageText);
+                            response.setText("Number of process saved successfully.");
+                            execute(response);
+                            burstTime = new int[numOfProcess];
 
-                        // If all process IDs are collected, proceed to the next step
-                        if (currentProcessIndex == numOfProcess) {
-                            // Call the method in the Main class to perform further processing
-                            Main.processInput(numOfProcess, processID);
-
-                            // Reset the process index for the next interaction
-                            currentProcessIndex = 0;
-                        } else {
-                            // If there are more processes to collect, ask for the next one
-                            response.setChatId(update.getMessage().getChatId().toString());
-                            response.setText("Please input the process ID for process " + (currentProcessIndex + 1) + ":");
+                            // Ask for process details
+                            //askForProcessDetails();
+                        } catch (TelegramApiException | NumberFormatException e) {
+                            response.setText("Invalid input. Please enter a valid number:");
+                            try {
+                                execute(response);
+                            } catch (TelegramApiException ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
-                }
+                    else if(numOfProcess > 0){
+                        // Process user input for process details
+                        askForProcessDetails();
+                        processUserInput(messageText);
+
+                        // If all processes are entered, perform further processing
+                        if (currentProcessIndex == numOfProcess) {
+                            // Call the method in the Main class to perform further processing
+                            Main.processInput(numOfProcess, processID, burstTime, arrivalTime);
+
+                            // Reset for the next interaction
+                            resetBotState();
+                        } else {
+                            // Continue asking for process details
+                            askForProcessDetails();
+                        }
+                    }
+
+
             }
+        }
+    }
+
+    private void handleUserResponse(Update update) {
+        String userResponse = update.getMessage().getText();
+        SendMessage response = new SendMessage();
+        String successMessage = "Number of process saved successfully\n" +
+                "Please type /displaynum to retrieve data or /getprocessid to continue the process";
+        response.setChatId(update.getMessage().getChatId().toString());
+        response.setText(successMessage);
+        // Now you can process the user's response
+        // For example, convert it to an integer
+        try {
+            numOfProcess = Integer.parseInt(userResponse);
+            System.out.println(numOfProcess);
+            execute(response);
+            // Continue processing with the obtained value
+            // ...
+
+        } catch (TelegramApiException | NumberFormatException e) {
+            // Handle the case where the user didn't provide a valid number
+            e.printStackTrace();
+        }
+    }
+
+    private void askForProcessDetails() {
+        SendMessage response = new SendMessage();
+        //response.setChatId(update.getMessage().getChatId().toString());
+        response.setText("Please input the process ID, burst time, and arrival time for process "
+                + (currentProcessIndex + 1) + ": \n"
+                + "Example: ABC_0_5");
+        try {
+            execute(response);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processUserInput(String userInput) {
+        // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
+        String[] parts = userInput.split("_");
+
+        // Assuming parts[0] is process ID, parts[1] is burst time, and parts[2] is arrival time
+        processID[currentProcessIndex] = parts[0];
+        burstTime[currentProcessIndex] = Integer.parseInt(parts[1]);
+        arrivalTime[currentProcessIndex] = Integer.parseInt(parts[2]);
+
+        currentProcessIndex++;
+    }
+
+    private void resetBotState() {
+        numOfProcess = 0;
+        processID = new String[0];
+        burstTime = new int[0];
+        arrivalTime = new int[0];
+        currentProcessIndex = 0;
     }
 
 }
