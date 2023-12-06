@@ -23,7 +23,7 @@ public class Main {
         }
     }
 
-    public static void processInput(int numOfProcess, String [] processID, int [] burstTime, int [] arrivalTime) {
+    public static void processInput(int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Your logic to process the input goes here
         System.out.println("Processing input...");
         System.out.println("Number of processes: " + numOfProcess);

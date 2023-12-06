@@ -13,6 +13,7 @@ public class simpleBot extends TelegramLongPollingBot {
     private String[] processID;
     private int[] burstTime;
     private int[] arrivalTime;
+    private int quantumNum;
     @Override
     public String getBotUsername() {
         return "Wen0331_Bot";
@@ -29,6 +30,7 @@ public class simpleBot extends TelegramLongPollingBot {
             //if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText(); //user input
             SendMessage response = new SendMessage(); //telegram response
+            String chatId = update.getMessage().getChatId().toString();
             switch(messageText){
                 /*case "/processnum":
                     response.setChatId(update.getMessage().getChatId().toString());
@@ -74,7 +76,7 @@ public class simpleBot extends TelegramLongPollingBot {
                     }
                     break;*/
                 case "/start":
-                    response.setChatId(update.getMessage().getChatId().toString());
+                    response.setChatId(chatId);
                     response.setText("Please enter the number of processes");
                     try {
                         execute(response);
@@ -86,7 +88,7 @@ public class simpleBot extends TelegramLongPollingBot {
                     }
                     break;
                 case "/terminate":
-                    response.setChatId(update.getMessage().getChatId().toString());
+                    response.setChatId(chatId);
                     response.setText("Session Terminate\nThank you! ");
                     try {
                         execute(response);
@@ -97,32 +99,79 @@ public class simpleBot extends TelegramLongPollingBot {
                 default:
                     //handleUserResponse(update);
                     if (numOfProcess == 0) {
-                        try {
-                            numOfProcess = Integer.parseInt(messageText);
-                            response.setText("Number of process saved successfully.");
-                            execute(response);
-                            burstTime = new int[numOfProcess];
-
-                            // Ask for process details
-                            //askForProcessDetails();
-                        } catch (TelegramApiException | NumberFormatException e) {
-                            response.setText("Invalid input. Please enter a valid number:");
+                        int num = Integer.parseInt(messageText);
+                        if(num > 0){
                             try {
+                                numOfProcess = Integer.parseInt(messageText);
+                                response.setText("Number of process saved successfully.");
                                 execute(response);
-                            } catch (TelegramApiException ex) {
-                                ex.printStackTrace();
+                                // Ask for process details
+                                askForQuantumNum();
+                                //askForProcessDetails();
+                            } catch (TelegramApiException | NumberFormatException e) {
+                                response.setText("Invalid input. Please enter a valid number:");
+                                try {
+                                    execute(response);
+                                } catch (TelegramApiException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                        else{
+                            try {
+                                response.setText("Invalid input. Please enter a valid number (more than 0).");
+                                execute(response);
+                            } catch (TelegramApiException | NumberFormatException e) {
+                                response.setText("Invalid input. Please enter a valid number:");
+                                try {
+                                    execute(response);
+                                } catch (TelegramApiException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                    else if (quantumNum == 0) {
+                        int num = Integer.parseInt(messageText);
+                        if(num > 0) {
+                            try {
+                                quantumNum = Integer.parseInt(messageText);
+                                response.setText("Quantum number saved successfully.");
+                                execute(response);
+                                // Ask for process details
+                                askForProcessDetails();
+                            } catch (TelegramApiException | NumberFormatException e) {
+                                response.setText("Invalid input. Please enter a valid number:");
+                                try {
+                                    execute(response);
+                                } catch (TelegramApiException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                        else{
+                            try {
+                                response.setText("Invalid input. Please enter a valid number (more than 0).");
+                                execute(response);
+                            } catch (TelegramApiException | NumberFormatException e) {
+                                response.setText("Invalid input. Please enter a valid number:");
+                                try {
+                                    execute(response);
+                                } catch (TelegramApiException ex) {
+                                    ex.printStackTrace();
+                                }
                             }
                         }
                     }
                     else if(numOfProcess > 0){
                         // Process user input for process details
-                        askForProcessDetails();
-                        processUserInput(messageText);
+                        //askForProcessDetails();
+                        processUserInput(messageText, chatId);
 
                         // If all processes are entered, perform further processing
                         if (currentProcessIndex == numOfProcess) {
                             // Call the method in the Main class to perform further processing
-                            Main.processInput(numOfProcess, processID, burstTime, arrivalTime);
+                            Main.processInput(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
 
                             // Reset for the next interaction
                             resetBotState();
@@ -159,12 +208,10 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    private void askForProcessDetails() {
+    private void askForQuantumNum() {
         SendMessage response = new SendMessage();
         //response.setChatId(update.getMessage().getChatId().toString());
-        response.setText("Please input the process ID, burst time, and arrival time for process "
-                + (currentProcessIndex + 1) + ": \n"
-                + "Example: ABC_0_5");
+        response.setText("Please input quantum number");
         try {
             execute(response);
         } catch (TelegramApiException e) {
@@ -172,7 +219,35 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    private void processUserInput(String userInput) {
+    private void askForProcessDetails() {
+        SendMessage response = new SendMessage();
+        //response.setChatId(update.getMessage().getChatId().toString());
+        response.setText("Please input the process ID, burst time, and arrival time for process "
+                + (currentProcessIndex + 1) + " \n"
+                + "Format:" + "\n"
+                + "ProcessID_BurstTime_ArrivalTime" + "\n"
+                + "(Example: ABC_0_5)");
+        try {
+            execute(response);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processUserInput(String userInput, String chatId) {
+        // Check if the input contains the underscore character
+        if (!userInput.contains("_")) {
+            // Handle the case where the input format is incorrect
+            SendMessage response = new SendMessage();
+            response.setChatId(String.valueOf(chatId));
+            response.setText("Invalid input format. Please use the format: ProcessID_BurstTime_ArrivalTime");
+            try {
+                execute(response);
+                return; // Exit the method without processing invalid input
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
         // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
         String[] parts = userInput.split("_");
 
