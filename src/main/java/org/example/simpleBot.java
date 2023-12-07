@@ -187,7 +187,7 @@ public class simpleBot extends TelegramLongPollingBot {
                             //retrieve data
                             //Main.selectAll(numOfProcess);
                             try{
-                                Main.selectAll(numOfProcess);
+                                Main.selectAll(numOfProcess, quantumNum);
                                 response.setChatId(chatId);
                                 response.setText("All process details added successfully.\n" +
                                         "Calculating averages...\n\n" +
@@ -302,6 +302,7 @@ public class simpleBot extends TelegramLongPollingBot {
     }
 
     private void resetBotState() {
+        System.out.println("aabbcc");
         numOfProcess = 0;
         quantumNum = 0;
         processID = "";

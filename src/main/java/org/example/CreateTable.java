@@ -8,7 +8,7 @@ public class CreateTable {
 
     public void createNewTable() {
         // SQLite connection
-        String url = "jdbc:sqlite:C:/sqlite/telegrambot2.db";
+        String url = "jdbc:sqlite:C:/sqlite/telegrambot5.db";
 
         // SQL statement for creating a new table
         String sql1 = "CREATE TABLE IF NOT EXISTS processnum_data (\n"
@@ -19,7 +19,8 @@ public class CreateTable {
 
         String sql2 = "CREATE TABLE IF NOT EXISTS process_data (\n"
                 + " id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-                + " operationID INTEGER,\n"
+                + " operationID INTEGER, \n"
+                //+ " numOfProcess INTEGER, \n"
                 + " processID TEXT, \n"
                 + " burstTime INTEGER, \n"
                 + " arrivalTime INTEGER, \n"

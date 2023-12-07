@@ -27,6 +27,7 @@ public class Main {
     static float averageWait = 0;
     static float averageResponse = 0;
     static float averageTurn = 0;
+    static int data;
     static List<String> processIDList = new ArrayList<>();
     static List<Integer> burstTimeList = new ArrayList<>();
     static List<Integer> arrivalTimeList = new ArrayList<>();
@@ -72,11 +73,13 @@ public class Main {
     }
 
     public static void handleInput(int numOfProcess, String processID, int burstTime, int arrivalTime) {
-        int data = selectData(numOfProcess);
+        data = selectData(numOfProcess);
+        //String sql = "INSERT INTO process_data(operationID, numOfProcess, processID, burstTime, arrivalTime) VALUES(?,?,?,?,?)";
         String sql = "INSERT INTO process_data(operationID, processID, burstTime, arrivalTime) VALUES(?,?,?,?)";
         try{
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, data);
+            //pstmt.setInt(2, numOfProcess);
             pstmt.setString(2, processID);
             pstmt.setInt(3, burstTime);
             pstmt.setInt(4, arrivalTime);
@@ -88,11 +91,13 @@ public class Main {
 
     public static int selectData(int number) {
         int data = 0;
-        String sql = "SELECT operationID FROM processnum_data WHERE numOfProcess = ?";
-
+        //String sql = "SELECT operationID FROM processnum_data WHERE numOfProcess = ?";
+        String sql = "SELECT operationID FROM processnum_data WHERE numOfProcess = ? ORDER BY operationID DESC LIMIT 1";
+//error occur here
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, number);  // Set the value for the placeholder
+            //pstmt.setInt(1, count);  // Set the value for the placeholder
+            pstmt.setInt(1, number);
             ResultSet rs = pstmt.executeQuery();
 
             // Check if there is a result before trying to retrieve data
@@ -107,23 +112,27 @@ public class Main {
         return data;
     }
 
-    public static void selectAll(int num){
-        String sql = "SELECT * FROM process_data INNER JOIN processnum_data ON process_data.operationID = processnum_data.operationID " +
-                "WHERE processnum_data.numOfProcess = ?";
+    public static void selectAll(int num, int quantum){
+        //String sql = "SELECT * FROM process_data WHERE numOfProcess = ? AND operationID = ?";
+        String sql = "SELECT * FROM process_data WHERE operationID = ?";
         processID= new String[num];
         burstTime= new int[num];
         arrivalTime= new int[num];
-
+        System.out.print("Data is " + data);
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                pstmt.setInt(1, num);  // Set the value for the placeholder
+                //pstmt.setInt(1, num);  // Set the value for the placeholder
+                pstmt.setInt(1, data);
                 ResultSet rs = pstmt.executeQuery();
+                processIDList.clear();
+                burstTimeList.clear();
+                arrivalTimeList.clear();
 
                 while (rs.next()) {
                     operationID = rs.getInt("operationID");
                     System.out.println("Operation ID are" + operationID);
-                    numOfProcess = rs.getInt("numOfProcess");
-                    quantumNum = rs.getInt("quantumNum");
+                    //numOfProcess = rs.getInt("numOfProcess");
+                    //quantumNum = rs.getInt("quantumNum");
                     String currentProcessID = rs.getString("processID");
                     processIDList.add(currentProcessID);
                     int currentBurstTime = rs.getInt("burstTime");
@@ -137,7 +146,7 @@ public class Main {
                 processID = processIDList.toArray(new String[0]);
                 burstTime = burstTimeList.stream().mapToInt(Integer::intValue).toArray();
                 arrivalTime = arrivalTimeList.stream().mapToInt(Integer::intValue).toArray();
-                processRetrievedData(operationID, numOfProcess, quantumNum, processID, burstTime, arrivalTime);
+                processRetrievedData(operationID, num, quantum, processID, burstTime, arrivalTime);
             } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -149,6 +158,8 @@ public class Main {
         //tem_burstTime = burstTime;
         for(int i = 0; i < numOfProcess; i++){
             tem_burstTime[i] = burstTime[i];
+            System.out.println("B is" + burstTime[i]);
+            System.out.println("Arrival is" + arrivalTime[i]);
             //System.out.println("Burst Time is " + tem_burstTime[i]);
         }
         Scheduler scheduler = new Scheduler(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
@@ -203,7 +214,7 @@ public class Main {
         Connection conn = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:C:/sqlite/telegrambot2.db";
+            String url = "jdbc:sqlite:C:/sqlite/telegrambot5.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 
