@@ -60,4 +60,16 @@ public class Result {
     public float getAvgResTime(){
         return Float.parseFloat(String.format("%.2f", avgResponse));
     }
+
+    public int [] getWaitTime(){
+        return waitTime;
+    }
+
+    public int [] getTurnTime(){
+        return turnTime;
+    }
+
+    public int [] getResponseTime(){
+        return responseTime;
+    }
 }

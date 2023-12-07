@@ -20,6 +20,9 @@ public class Main {
     static String [] processID;
     static int [] burstTime;
     static int [] arrivalTime;
+    static int [] waitTime;
+    static int [] turnTime;
+    static int [] responseTime;
     static float averageWait = 0;
     static float averageResponse = 0;
     static float averageTurn = 0;
@@ -136,6 +139,9 @@ public class Main {
         averageWait = resultCalculator.getAvgWaitTime();
         averageTurn = resultCalculator.getAvgTurnTime();
         averageResponse = resultCalculator.getAvgResTime();
+        waitTime = resultCalculator.getWaitTime();
+        turnTime = resultCalculator.getTurnTime();
+        responseTime = resultCalculator.getResponseTime();
     }
 
     public static Connection connect() {
