@@ -76,6 +76,7 @@ public class simpleBot extends TelegramLongPollingBot {
                     }
                     break;*/
                 case "/start":
+                case "/restart":
                     response.setChatId(chatId);
                     response.setText("Please enter the number of processes");
                     try {
@@ -175,7 +176,23 @@ public class simpleBot extends TelegramLongPollingBot {
                             // Call the method in the Main class to perform further processing
                             //Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
                             //retrieve data
-                            Main.selectAll(numOfProcess);
+                            //Main.selectAll(numOfProcess);
+                            try{
+                                Main.selectAll(numOfProcess);
+                                response.setText("All process details added successfully.\n" +
+                                        "Calculating averages...\n\n" +
+                                        "Average Response Time: " +
+                                        Main.averageResponse +
+                                        "\nAverage Waiting Time: " +
+                                        Main.averageWait +
+                                        "\nAverage Turnaround Time: " +
+                                        Main.averageTurn +
+                                        "\n\nThank you for using MySecondBot!\n" +
+                                        "Please type \n /restart to implement new processes or \n /terminate to end this session");
+                                execute(response);
+                            }catch(TelegramApiException e){
+                                e.printStackTrace();
+                            }
                             // Reset for the next interaction
                             resetBotState();
                         } else {

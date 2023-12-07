@@ -17,6 +17,7 @@ public class Main {
 
     static int numOfProcess;
     static int quantumNum;
+    static int operationID;
     static String [] processID;
     static int [] burstTime;
     static int [] arrivalTime;
@@ -65,8 +66,8 @@ public class Main {
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, data);
             pstmt.setString(2, processID);
-            pstmt.setInt(2, burstTime);
-            pstmt.setInt(2, arrivalTime);
+            pstmt.setInt(3, burstTime);
+            pstmt.setInt(4, arrivalTime);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -108,6 +109,7 @@ public class Main {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
+                    operationID = rs.getInt("process_data.operationID");
                     numOfProcess = rs.getInt("numOfProcess");
                     quantumNum = rs.getInt("quantumNum");
                     String currentProcessID = rs.getString("processID");
@@ -123,13 +125,13 @@ public class Main {
                 processID = processIDList.toArray(new String[0]);
                 burstTime = burstTimeList.stream().mapToInt(Integer::intValue).toArray();
                 arrivalTime = arrivalTimeList.stream().mapToInt(Integer::intValue).toArray();
-                processRetrievedData(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
+                processRetrievedData(operationID, numOfProcess, quantumNum, processID, burstTime, arrivalTime);
             } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static void processRetrievedData(int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
+    public static void processRetrievedData(int operationID, int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Process or store the retrieved data, e.g., in another class (Scheduler)
         Scheduler scheduler = new Scheduler(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
         scheduler.runScheduler();
@@ -142,6 +144,44 @@ public class Main {
         waitTime = resultCalculator.getWaitTime();
         turnTime = resultCalculator.getTurnTime();
         responseTime = resultCalculator.getResponseTime();
+        handleResult(operationID, averageWait, averageTurn, averageResponse);
+        for(int i = 0; i < numOfProcess; i++){
+            int response = responseTime[i];
+            int wait = waitTime[i];
+            int turn = turnTime[i];
+            updateResult(operationID, response, wait, turn);
+        }
+    }
+
+    public static void handleResult(int operationID, float averageWait, float averageTurn, float averageResponse) {
+        String sql = "INSERT INTO process_result(operationID, avgResponse, avgWaiting, avgTurnaround) VALUES(?,?,?,?)";
+        try{
+            Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, operationID);
+            pstmt.setFloat(2, averageResponse);
+            pstmt.setFloat(3, averageWait);
+            pstmt.setFloat(4, averageTurn);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void updateResult(int operationID, int responseTime, int waitTime, int turnTime) {
+        String sql = "INSERT INTO process_data(responseTime, waitingTime, turnaroundTime) VALUES(?,?,?)" +
+                "WHERE process_data.operationID = ?";
+        try{
+            Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, responseTime);
+            pstmt.setInt(2, waitTime);
+            pstmt.setInt(3, turnTime);
+            pstmt.setInt(4, operationID);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public static Connection connect() {
