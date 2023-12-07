@@ -30,6 +30,7 @@ public class Main {
     static List<String> processIDList = new ArrayList<>();
     static List<Integer> burstTimeList = new ArrayList<>();
     static List<Integer> arrivalTimeList = new ArrayList<>();
+    static Connection conn = connect();
     public static void main(String[] args) throws TelegramApiException {
 
         connect();
@@ -42,13 +43,25 @@ public class Main {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+
+        // Add a shutdown hook to close the database connection
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.close();
+                    System.out.println("Connection to SQLite has been closed.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }));
     }
 
     public static void processInput(int numOfProcess, int quantumNum) {
 
         String sql = "INSERT INTO processnum_data(numOfProcess, quantumNum) VALUES(?,?)";
         try{
-            Connection conn = connect();
+            System.out.println("bbb");
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, numOfProcess);
             pstmt.setInt(2, quantumNum);
@@ -62,7 +75,6 @@ public class Main {
         int data = selectData(numOfProcess);
         String sql = "INSERT INTO process_data(operationID, processID, burstTime, arrivalTime) VALUES(?,?,?,?)";
         try{
-            Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, data);
             pstmt.setString(2, processID);
@@ -78,8 +90,7 @@ public class Main {
         int data = 0;
         String sql = "SELECT operationID FROM processnum_data WHERE numOfProcess = ?";
 
-        try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, number);  // Set the value for the placeholder
             ResultSet rs = pstmt.executeQuery();
@@ -102,14 +113,13 @@ public class Main {
         burstTime= new int[num];
         arrivalTime= new int[num];
 
-            try (Connection conn = connect();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 pstmt.setInt(1, num);  // Set the value for the placeholder
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    operationID = rs.getInt("process_data.operationID");
+                    operationID = rs.getInt("operationID");
                     numOfProcess = rs.getInt("numOfProcess");
                     quantumNum = rs.getInt("quantumNum");
                     String currentProcessID = rs.getString("processID");
@@ -144,11 +154,13 @@ public class Main {
         waitTime = resultCalculator.getWaitTime();
         turnTime = resultCalculator.getTurnTime();
         responseTime = resultCalculator.getResponseTime();
+        System.out.println("AvgWait is " + averageWait);
         handleResult(operationID, averageWait, averageTurn, averageResponse);
         for(int i = 0; i < numOfProcess; i++){
             int response = responseTime[i];
             int wait = waitTime[i];
             int turn = turnTime[i];
+            System.out.println("Response Time is " + response);
             updateResult(operationID, response, wait, turn);
         }
     }
@@ -156,7 +168,6 @@ public class Main {
     public static void handleResult(int operationID, float averageWait, float averageTurn, float averageResponse) {
         String sql = "INSERT INTO process_result(operationID, avgResponse, avgWaiting, avgTurnaround) VALUES(?,?,?,?)";
         try{
-            Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, operationID);
             pstmt.setFloat(2, averageResponse);
@@ -169,10 +180,8 @@ public class Main {
     }
 
     public static void updateResult(int operationID, int responseTime, int waitTime, int turnTime) {
-        String sql = "INSERT INTO process_data(responseTime, waitingTime, turnaroundTime) VALUES(?,?,?)" +
-                "WHERE process_data.operationID = ?";
+        String sql = "UPDATE process_data SET responseTime = ?, waitingTime = ?, turnaroundTime = ? WHERE operationID = ?";
         try{
-            Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, responseTime);
             pstmt.setInt(2, waitTime);
@@ -188,7 +197,7 @@ public class Main {
         Connection conn = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:C:/sqlite/realTime.db";
+            String url = "jdbc:sqlite:C:/sqlite/telegram.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 
@@ -200,6 +209,7 @@ public class Main {
             try {
                 if (conn != null) {
                     conn.close();
+                    System.out.println("Connection to SQLite has been closed.");
                 }
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());

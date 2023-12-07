@@ -8,13 +8,13 @@ public class CreateTable {
 
     public void createNewTable() {
         // SQLite connection
-        String url = "jdbc:sqlite:C:/sqlite/realTime.db";
+        String url = "jdbc:sqlite:C:/sqlite/telegram.db";
 
         // SQL statement for creating a new table
         String sql1 = "CREATE TABLE IF NOT EXISTS processnum_data (\n"
                 + " operationID INTEGER PRIMARY KEY AUTOINCREMENT,\n"
                 + " numOfProcess INTEGER NOT NULL, \n"
-                + " quantumNum INTEGER NOT NULL\n"
+                + " quantumNum INTEGER NOT NULL \n"
                 + ");";
 
         String sql2 = "CREATE TABLE IF NOT EXISTS process_data (\n"

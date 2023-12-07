@@ -104,12 +104,14 @@ public class simpleBot extends TelegramLongPollingBot {
                         if(num > 0){
                             try {
                                 numOfProcess = Integer.parseInt(messageText);
+                                response.setChatId(chatId);
                                 response.setText("Number of process saved successfully.");
                                 execute(response);
                                 // Ask for process details
-                                askForQuantumNum();
+                                askForQuantumNum(chatId);
                                 //askForProcessDetails();
                             } catch (TelegramApiException | NumberFormatException e) {
+                                response.setChatId(chatId);
                                 response.setText("Invalid input. Please enter a valid number:");
                                 try {
                                     execute(response);
@@ -120,9 +122,11 @@ public class simpleBot extends TelegramLongPollingBot {
                         }
                         else{
                             try {
+                                response.setChatId(chatId);
                                 response.setText("Invalid input. Please enter a valid number (more than 0).");
                                 execute(response);
                             } catch (TelegramApiException | NumberFormatException e) {
+                                response.setChatId(chatId);
                                 response.setText("Invalid input. Please enter a valid number:");
                                 try {
                                     execute(response);
@@ -138,11 +142,14 @@ public class simpleBot extends TelegramLongPollingBot {
                             try {
                                 quantumNum = Integer.parseInt(messageText);
                                 Main.processInput(numOfProcess, quantumNum);
+                                System.out.println("ccc");
+                                response.setChatId(chatId);
                                 response.setText("Quantum number saved successfully.");
                                 execute(response);
                                 // Ask for process details
-                                askForProcessDetails();
+                                askForProcessDetails(chatId);
                             } catch (TelegramApiException | NumberFormatException e) {
+                                response.setChatId(chatId);
                                 response.setText("Invalid input. Please enter a valid number:");
                                 try {
                                     execute(response);
@@ -153,9 +160,11 @@ public class simpleBot extends TelegramLongPollingBot {
                         }
                         else{
                             try {
+                                response.setChatId(chatId);
                                 response.setText("Invalid input. Please enter a valid number (more than 0).");
                                 execute(response);
                             } catch (TelegramApiException | NumberFormatException e) {
+                                response.setChatId(chatId);
                                 response.setText("Invalid input. Please enter a valid number:");
                                 try {
                                     execute(response);
@@ -179,6 +188,7 @@ public class simpleBot extends TelegramLongPollingBot {
                             //Main.selectAll(numOfProcess);
                             try{
                                 Main.selectAll(numOfProcess);
+                                response.setChatId(chatId);
                                 response.setText("All process details added successfully.\n" +
                                         "Calculating averages...\n\n" +
                                         "Average Response Time: " +
@@ -197,7 +207,7 @@ public class simpleBot extends TelegramLongPollingBot {
                             resetBotState();
                         } else {
                             // Continue asking for process details
-                            askForProcessDetails();
+                            askForProcessDetails(chatId);
                         }
                     }
 
@@ -228,9 +238,9 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }*/
 
-    private void askForQuantumNum() {
+    private void askForQuantumNum(String chatId) {
         SendMessage response = new SendMessage();
-        //response.setChatId(update.getMessage().getChatId().toString());
+        response.setChatId(String.valueOf(chatId));
         response.setText("Please input quantum number");
         try {
             execute(response);
@@ -239,12 +249,12 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    private void askForProcessDetails() {
+    private void askForProcessDetails(String chatId) {
         SendMessage response = new SendMessage();
-        //response.setChatId(update.getMessage().getChatId().toString());
+        response.setChatId(String.valueOf(chatId));
         response.setText("Please input the process ID, burst time, and arrival time for process "
-                + (currentProcessIndex + 1) + " \n"
-                + "Format:" + "\n"
+                + (currentProcessIndex + 1) + " \n\n"
+                + "Format: "
                 + "ProcessID_BurstTime_ArrivalTime" + "\n"
                 + "(Example: ABC_0_5)");
         try {
