@@ -24,6 +24,6 @@ public class Create {
     }
 
     public static void main(String[] args) {
-        createNewDatabase("telegram.db");
+        createNewDatabase("telegrambot2.db");
     }
 }

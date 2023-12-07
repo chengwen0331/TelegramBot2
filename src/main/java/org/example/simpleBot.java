@@ -7,13 +7,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class simpleBot extends TelegramLongPollingBot {
 
-    private int numOfProcess;
-    private int currentProcessIndex = 0;
+    private static int numOfProcess;
+    private static int currentProcessIndex = 0;
 
-    private String processID;
-    private int burstTime;
-    private int arrivalTime;
-    private int quantumNum;
+    private static String processID;
+    private static int burstTime;
+    private static int arrivalTime;
+    private static int quantumNum;
     @Override
     public String getBotUsername() {
         return "Wen0331_Bot";
@@ -200,11 +200,10 @@ public class simpleBot extends TelegramLongPollingBot {
                                         "\n\nThank you for using MySecondBot!\n" +
                                         "Please type \n /restart to implement new processes or \n /terminate to end this session");
                                 execute(response);
+                                resetBotState(); // Reset for the next interaction
                             }catch(TelegramApiException e){
                                 e.printStackTrace();
                             }
-                            // Reset for the next interaction
-                            resetBotState();
                         } else {
                             // Continue asking for process details
                             askForProcessDetails(chatId);
@@ -304,6 +303,7 @@ public class simpleBot extends TelegramLongPollingBot {
 
     private void resetBotState() {
         numOfProcess = 0;
+        quantumNum = 0;
         processID = "";
         burstTime = 0;
         arrivalTime = 0;

@@ -98,6 +98,7 @@ public class Main {
             // Check if there is a result before trying to retrieve data
             if (rs.next()) {
                 data = rs.getInt("operationID");
+                System.out.println("Operation ID is" + data);
             }
 
         } catch (SQLException e) {
@@ -120,6 +121,7 @@ public class Main {
 
                 while (rs.next()) {
                     operationID = rs.getInt("operationID");
+                    System.out.println("Operation ID are" + operationID);
                     numOfProcess = rs.getInt("numOfProcess");
                     quantumNum = rs.getInt("quantumNum");
                     String currentProcessID = rs.getString("processID");
@@ -143,9 +145,15 @@ public class Main {
 
     public static void processRetrievedData(int operationID, int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Process or store the retrieved data, e.g., in another class (Scheduler)
+        int[] tem_burstTime = new int[numOfProcess];
+        //tem_burstTime = burstTime;
+        for(int i = 0; i < numOfProcess; i++){
+            tem_burstTime[i] = burstTime[i];
+            //System.out.println("Burst Time is " + tem_burstTime[i]);
+        }
         Scheduler scheduler = new Scheduler(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
         scheduler.runScheduler();
-        Result resultCalculator = new Result(numOfProcess, burstTime, arrivalTime, scheduler.getTurnaroundTime(), scheduler.getStartTime());
+        Result resultCalculator = new Result(numOfProcess, tem_burstTime, arrivalTime, scheduler.getTurnaroundTime(), scheduler.getStartTime());
         resultCalculator.calculateResults();
         resultCalculator.displayResults();
         averageWait = resultCalculator.getAvgWaitTime();
@@ -154,13 +162,11 @@ public class Main {
         waitTime = resultCalculator.getWaitTime();
         turnTime = resultCalculator.getTurnTime();
         responseTime = resultCalculator.getResponseTime();
-        System.out.println("AvgWait is " + averageWait);
         handleResult(operationID, averageWait, averageTurn, averageResponse);
         for(int i = 0; i < numOfProcess; i++){
             int response = responseTime[i];
             int wait = waitTime[i];
             int turn = turnTime[i];
-            System.out.println("Response Time is " + response);
             updateResult(operationID, response, wait, turn);
         }
     }
@@ -197,7 +203,7 @@ public class Main {
         Connection conn = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:C:/sqlite/telegram.db";
+            String url = "jdbc:sqlite:C:/sqlite/telegrambot2.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 

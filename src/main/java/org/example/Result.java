@@ -25,6 +25,7 @@ public class Result {
 
     public void calculateResults() {
         for(int i = 0; i < numOfProcess; i++){
+            System.out.println("Burst Time is " + burstTime[i]);
             responseTime[i] = executeTime[i] - arrivalTime[i];
             turnTime[i] = turnTime[i] - arrivalTime[i];
             waitTime[i] = turnTime[i] - burstTime[i];

@@ -8,7 +8,7 @@ public class CreateTable {
 
     public void createNewTable() {
         // SQLite connection
-        String url = "jdbc:sqlite:C:/sqlite/telegram.db";
+        String url = "jdbc:sqlite:C:/sqlite/telegrambot2.db";
 
         // SQL statement for creating a new table
         String sql1 = "CREATE TABLE IF NOT EXISTS processnum_data (\n"
