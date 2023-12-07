@@ -10,8 +10,22 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.DatabaseMetaData;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
+
+    static int numOfProcess;
+    static int quantumNum;
+    static String [] processID;
+    static int [] burstTime;
+    static int [] arrivalTime;
+    static float averageWait = 0;
+    static float averageResponse = 0;
+    static float averageTurn = 0;
+    static List<String> processIDList = new ArrayList<>();
+    static List<Integer> burstTimeList = new ArrayList<>();
+    static List<Integer> arrivalTimeList = new ArrayList<>();
     public static void main(String[] args) throws TelegramApiException {
 
         connect();
@@ -77,9 +91,12 @@ public class Main {
         return data;
     }
 
-    public void selectAll(int num){
+    public static void selectAll(int num){
         String sql = "SELECT * FROM process_data INNER JOIN processnum_data ON process_data.operationID = processnum_data.operationID " +
-                "WHERE numOfProcess = ?";
+                "WHERE processnum_data.numOfProcess = ?";
+        processID= new String[num];
+        burstTime= new int[num];
+        arrivalTime= new int[num];
 
             try (Connection conn = connect();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -87,15 +104,38 @@ public class Main {
                 pstmt.setInt(1, num);  // Set the value for the placeholder
                 ResultSet rs = pstmt.executeQuery();
 
-                // Check if there is a result before trying to retrieve data
                 while (rs.next()) {
-                    System.out.println(rs.getInt("id") +  "\t" +
-                            rs.getString("name") + "\t" +
-                            rs.getDouble("capacity"));
+                    numOfProcess = rs.getInt("numOfProcess");
+                    quantumNum = rs.getInt("quantumNum");
+                    String currentProcessID = rs.getString("processID");
+                    processIDList.add(currentProcessID);
+                    int currentBurstTime = rs.getInt("burstTime");
+                    burstTimeList.add(currentBurstTime);
+                    int currentArrivalTime = rs.getInt("arrivalTime");
+                    arrivalTimeList.add(currentArrivalTime);
+                //scheduler.setNumOfProcess(rs.getInt("numOfProcess"));
+                //scheduler.setQuantumNum(rs.getInt("quantumNum"));
+                //scheduler.setBurstTime(rs.getInt("process_data.burstTime"));
                 }
-        } catch (SQLException e) {
+                processID = processIDList.toArray(new String[0]);
+                burstTime = burstTimeList.stream().mapToInt(Integer::intValue).toArray();
+                arrivalTime = arrivalTimeList.stream().mapToInt(Integer::intValue).toArray();
+                processRetrievedData(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
+            } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public static void processRetrievedData(int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
+        // Process or store the retrieved data, e.g., in another class (Scheduler)
+        Scheduler scheduler = new Scheduler(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
+        scheduler.runScheduler();
+        Result resultCalculator = new Result(numOfProcess, burstTime, arrivalTime, scheduler.getTurnaroundTime(), scheduler.getStartTime());
+        resultCalculator.calculateResults();
+        resultCalculator.displayResults();
+        averageWait = resultCalculator.getAvgWaitTime();
+        averageTurn = resultCalculator.getAvgTurnTime();
+        averageResponse = resultCalculator.getAvgResTime();
     }
 
     public static Connection connect() {

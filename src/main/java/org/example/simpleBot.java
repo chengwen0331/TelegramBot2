@@ -175,6 +175,7 @@ public class simpleBot extends TelegramLongPollingBot {
                             // Call the method in the Main class to perform further processing
                             //Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
                             //retrieve data
+                            Main.selectAll(numOfProcess);
                             // Reset for the next interaction
                             resetBotState();
                         } else {
