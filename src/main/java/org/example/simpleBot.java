@@ -177,9 +177,13 @@ public class simpleBot extends TelegramLongPollingBot {
                     else if(numOfProcess > 0){
                         // Process user input for process details
                         //askForProcessDetails();
-                        processUserInput(messageText, chatId);
-                        Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
-
+                        boolean check = processUserInput(messageText, chatId);
+                        if(check == true) {
+                            Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
+                        }
+                        else{
+                            break;
+                        }
                         // If all processes are entered, perform further processing
                         if (currentProcessIndex == numOfProcess) {
                             // Call the method in the Main class to perform further processing
@@ -263,7 +267,7 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    private void processUserInput(String userInput, String chatId) {
+    /*private void processUserInput(String userInput, String chatId) {
         // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
         String[] parts = userInput.split("_");
         // Check if the input contains the underscore character
@@ -299,6 +303,48 @@ public class simpleBot extends TelegramLongPollingBot {
                 }
             }
         }
+    }*/
+
+    private boolean processUserInput(String userInput, String chatId) {
+        boolean check = true;
+        // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
+        String[] parts = userInput.split("_");
+        // Check if the input contains the underscore character
+        if (!userInput.contains("_") || parts.length != 3) {
+            // Handle the case where the input format is incorrect
+            SendMessage response = new SendMessage();
+            response.setChatId(String.valueOf(chatId));
+            response.setText("Invalid input format. Please use the format: ProcessID_BurstTime_ArrivalTime");
+            try {
+                check = false;
+                execute(response);
+                return check; // Exit the method without processing invalid input
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            try {
+                // Assuming parts[0] is process ID, parts[1] is burst time, and parts[2] is arrival time
+                processID = parts[0];
+                burstTime= Integer.parseInt(parts[1]);
+                arrivalTime = Integer.parseInt(parts[2]);
+
+                currentProcessIndex++;
+            } catch (NumberFormatException e) {
+                // Handle the case where BurstTime or ArrivalTime is not a valid integer
+                SendMessage response = new SendMessage();
+                response.setChatId(String.valueOf(chatId));
+                response.setText("Invalid input format. BurstTime and ArrivalTime must be valid integers.");
+                try {
+                    execute(response);
+                    return check;
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return check;
     }
 
     private void resetBotState() {

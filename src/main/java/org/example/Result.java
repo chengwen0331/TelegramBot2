@@ -39,10 +39,10 @@ public class Result {
     }
 
     public void displayResults() {
-        System.out.print("\nProgram No.\tArrival Time\tBurst Time\tWait Time\tTurnAround Time"
+        System.out.print("\nProgram No.\tArrival Time\tBurst Time\tStart Time\tResponse Time\tWait Time\tTurnAround Time"
                 + "\n");
         for(int i = 0; i < numOfProcess; i++){
-            System.out.print(i+1+"\t\t"+arrivalTime[i]+"\t\t"+burstTime[i]+"\t\t"+responseTime[i]
+            System.out.print(i+1+"\t\t"+arrivalTime[i]+"\t\t"+burstTime[i]+"\t\t"+executeTime[i]+"\t\t"+responseTime[i]
                     +"\t\t"+waitTime[i]+"\t\t"+turnTime[i]+ "\n");
         }
         System.out.print("\nAverage wait time : "+(avgWait)
