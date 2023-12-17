@@ -31,6 +31,7 @@ public class Main {
     static List<String> processIDList = new ArrayList<>();
     static List<Integer> burstTimeList = new ArrayList<>();
     static List<Integer> arrivalTimeList = new ArrayList<>();
+    static List<Integer> responseTimeList = new ArrayList<>();
     static Connection conn = connect();
     public static void main(String[] args) throws TelegramApiException {
 
@@ -178,6 +179,7 @@ public class Main {
             int response = responseTime[i];
             int wait = waitTime[i];
             int turn = turnTime[i];
+            System.out.print("response" + turnTime[i]);
             updateResult(operationID, response, wait, turn);
         }
     }
@@ -208,6 +210,36 @@ public class Main {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public static String processResTime(int numOfProcess){
+        String sql = "SELECT responseTime FROM process_data WHERE operationID = ?";
+        responseTime= new int[numOfProcess];
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, data);
+            ResultSet rs = pstmt.executeQuery();
+            responseTimeList.clear();
+            int index = 0;
+            while (rs.next()) {
+                int resTime = rs.getInt("responseTime");
+                responseTimeList.add(resTime);
+                responseTime[index++] = resTime;
+            }
+
+            //responseTime = responseTimeList.stream().mapToInt(Integer::intValue).toArray();
+            String response = "";
+            for (int i = 0; i < numOfProcess; i++) {
+                System.out.print("no");
+                System.out.println("response" + responseTime[i]);
+                response += "Response Time for process " + (i + 1) + ": " + responseTime[i] + "\n";
+            }
+            return response;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return "";
     }
 
     public static Connection connect() {

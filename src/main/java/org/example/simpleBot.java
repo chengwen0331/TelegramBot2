@@ -30,6 +30,7 @@ public class simpleBot extends TelegramLongPollingBot {
             //if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText(); //user input
             SendMessage response = new SendMessage(); //telegram response
+            SendMessage response1 = new SendMessage(); //telegram response
             String chatId = update.getMessage().getChatId().toString();
             switch(messageText){
                 /*case "/processnum":
@@ -190,11 +191,15 @@ public class simpleBot extends TelegramLongPollingBot {
                             //Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
                             //retrieve data
                             //Main.selectAll(numOfProcess);
+                            System.out.println("yes");
+                            String displayResponse = Main.processResTime(numOfProcess);
+                            System.out.println("yes" + displayResponse);
                             try{
                                 Main.selectAll(numOfProcess, quantumNum);
                                 response.setChatId(chatId);
                                 response.setText("All process details added successfully.\n" +
                                         "Calculating averages...\n\n" +
+                                        displayResponse +
                                         "Average Response Time: " +
                                         Main.averageResponse +
                                         "\nAverage Waiting Time: " +

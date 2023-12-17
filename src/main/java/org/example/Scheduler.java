@@ -13,6 +13,7 @@ public class Scheduler {
     private boolean complete[];
     private int completeTime[];
     private int [] startTime;
+    private boolean [] startTimeSet;
 
     public Scheduler(int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Constructor
@@ -27,6 +28,7 @@ public class Scheduler {
         this.complete = new boolean[numOfProcess];
         this.completeTime = new int[numOfProcess];
         this.startTime = new int[numOfProcess];
+        this.startTimeSet = new boolean[numOfProcess];
     }
 
     // Create setter methods for each data field
@@ -55,6 +57,7 @@ public class Scheduler {
         for(int i = 0; i < numOfProcess; i++){
             complete[i] = false; //all process incomplete
             queue[i] = 0; //no process is initially scheduled.
+            startTimeSet[i] = false;
         }
         while(timer < arrivalTime[maxProcessIndex]) {   //Incrementing Timer until the first process arrives
 
@@ -75,9 +78,16 @@ public class Scheduler {
             }
             for(int i = 0; (i < numOfProcess) && (queue[i] != 0); i++){
                 int ctr = 0; //counter value to keep track of how much time has been spent on the current process within the time quantum
-                startTime[i] = timer;
-                if (hasArrivals(arrivalTime)) {
+                //startTime[i] = timer;//is it i use timer variable so it keep accumulating?
+                // Check if start time has already been set for the process
+                if (startTimeSet[i] == false) {
+                    System.out.println(startTimeSet[i]);
+                    // Set start time only once
                     startTime[i] = timer;
+                    startTimeSet[i] = true;
+                }
+                if (hasArrivals(arrivalTime)) {
+                    //startTime[i] = timer;
                     while((ctr < quantum) && (rem_burstTime[queue[0]-1] > 0)){
                         rem_burstTime[queue[0]-1] -= 1; //runs until either the process completes its burst
                         timer += 1;
@@ -110,6 +120,9 @@ public class Scheduler {
 
                 }
             }
+        }
+        for(int i = 0; i < numOfProcess; i++){
+
         }
     }
 
