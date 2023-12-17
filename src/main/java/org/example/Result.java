@@ -71,6 +71,11 @@ public class Result {
     }
 
     public int [] getResponseTime(){
+
+        for(int i = 0; i < numOfProcess; i++){
+            System.out.println("response time:" + responseTime[i]);
+        }
         return responseTime;
+
     }
 }

@@ -19,6 +19,7 @@ public class Main {
     static int quantumNum;
     static int operationID;
     static String [] processID;
+    static int [] operationIDs;
     static int [] burstTime;
     static int [] arrivalTime;
     static int [] waitTime;
@@ -119,7 +120,6 @@ public class Main {
         processID= new String[num];
         burstTime= new int[num];
         arrivalTime= new int[num];
-        System.out.print("Data is " + data);
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 //pstmt.setInt(1, num);  // Set the value for the placeholder
@@ -131,9 +131,6 @@ public class Main {
 
                 while (rs.next()) {
                     operationID = rs.getInt("operationID");
-                    System.out.println("Operation ID are" + operationID);
-                    //numOfProcess = rs.getInt("numOfProcess");
-                    //quantumNum = rs.getInt("quantumNum");
                     String currentProcessID = rs.getString("processID");
                     processIDList.add(currentProcessID);
                     int currentBurstTime = rs.getInt("burstTime");
@@ -147,7 +144,7 @@ public class Main {
                 processID = processIDList.toArray(new String[0]);
                 burstTime = burstTimeList.stream().mapToInt(Integer::intValue).toArray();
                 arrivalTime = arrivalTimeList.stream().mapToInt(Integer::intValue).toArray();
-                processRetrievedData(operationID, num, quantum, processID, burstTime, arrivalTime);
+                processRetrievedData(data, num, quantum, processID, burstTime, arrivalTime);
             } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -159,9 +156,6 @@ public class Main {
         //tem_burstTime = burstTime;
         for(int i = 0; i < numOfProcess; i++){
             tem_burstTime[i] = burstTime[i];
-            System.out.println("B is" + burstTime[i]);
-            System.out.println("Arrival is" + arrivalTime[i]);
-            //System.out.println("Burst Time is " + tem_burstTime[i]);
         }
         Scheduler scheduler = new Scheduler(numOfProcess, quantumNum, processID, burstTime, arrivalTime);
         scheduler.runScheduler();
@@ -179,7 +173,6 @@ public class Main {
             int response = responseTime[i];
             int wait = waitTime[i];
             int turn = turnTime[i];
-            System.out.print("response" + turnTime[i]);
             updateResult(operationID, response, wait, turn);
         }
     }
@@ -199,6 +192,8 @@ public class Main {
     }
 
     public static void updateResult(int operationID, int responseTime, int waitTime, int turnTime) {
+        System.out.println("checking" + responseTime); //here correct
+
         String sql = "UPDATE process_data SET responseTime = ?, waitingTime = ?, turnaroundTime = ? WHERE operationID = ?";
         try{
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -212,7 +207,8 @@ public class Main {
         }
     }
 
-    public static String processResTime(int numOfProcess){
+    /*public static String processResTime(int numOfProcess){
+        System.out.print("Data is " + data);
         String sql = "SELECT responseTime FROM process_data WHERE operationID = ?";
         responseTime= new int[numOfProcess];
 
@@ -221,18 +217,46 @@ public class Main {
             pstmt.setInt(1, data);
             ResultSet rs = pstmt.executeQuery();
             responseTimeList.clear();
-            int index = 0;
+
             while (rs.next()) {
                 int resTime = rs.getInt("responseTime");
                 responseTimeList.add(resTime);
-                responseTime[index++] = resTime;
+                //responseTime[index++] = resTime;
+                System.out.println("Retrieved responseTime: " + resTime);
             }
 
-            //responseTime = responseTimeList.stream().mapToInt(Integer::intValue).toArray();
+            responseTime = responseTimeList.stream().mapToInt(Integer::intValue).toArray();
             String response = "";
             for (int i = 0; i < numOfProcess; i++) {
-                System.out.print("no");
-                System.out.println("response" + responseTime[i]);
+                response += "Response Time for process " + (i + 1) + ": " + responseTime[i] + "\n";
+            }
+            return response;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return "";
+    }*/
+
+    public static String processResTime(int numOfProcess){
+
+        String sql = "SELECT responseTime FROM process_data WHERE operationID = ?";
+        responseTime= new int[numOfProcess];
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, data);
+            ResultSet rs = pstmt.executeQuery();
+            responseTimeList.clear();
+
+            while (rs.next()) {
+                int resTime = rs.getInt("responseTime");
+                responseTimeList.add(resTime);
+                System.out.println("Retrieved responseTime: " + resTime);
+            }
+
+            responseTime = responseTimeList.stream().mapToInt(Integer::intValue).toArray();
+            String response = "";
+            for (int i = 0; i < numOfProcess; i++) {
                 response += "Response Time for process " + (i + 1) + ": " + responseTime[i] + "\n";
             }
             return response;

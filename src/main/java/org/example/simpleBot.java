@@ -191,9 +191,8 @@ public class simpleBot extends TelegramLongPollingBot {
                             //Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
                             //retrieve data
                             //Main.selectAll(numOfProcess);
-                            System.out.println("yes");
                             String displayResponse = Main.processResTime(numOfProcess);
-                            System.out.println("yes" + displayResponse);
+
                             try{
                                 Main.selectAll(numOfProcess, quantumNum);
                                 response.setChatId(chatId);
