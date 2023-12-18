@@ -5,32 +5,37 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+//handle updates received from the Telegram server
 public class simpleBot extends TelegramLongPollingBot {
 
-    private static int numOfProcess;
-    private static int currentProcessIndex = 0;
+    private static int numOfProcess; //store the total number of processes to be handled
+    private static int currentProcessIndex = 0; //keep track of the current index of the process being entered
 
-    private static String processID;
-    private static int burstTime;
-    private static int arrivalTime;
-    private static int quantumNum;
+    private static String processID; //store the unique identifier of the process
+    private static int burstTime; //store the burst time of the process
+    private static int arrivalTime; //store the arrival time of the process
+    private static int quantumNum; //store the quantum number for process scheduling
     @Override
+    //get bot username
     public String getBotUsername() {
         return "Wen0331_Bot";
     }
 
     @Override
+    //get bot token
     public String getBotToken() {
         return "6959837168:AAE4lYxIBO_W_tINGnu0HhVSxuF2d-fbOEo";
     }
 
     @Override
+    //Handles incoming updates from the user in the Telegram chat
     public void onUpdateReceived(Update update) {
+        // Check if the update contains a message from the user
         if (update.hasMessage()) {
-            String messageText = update.getMessage().getText(); //user input
+            String messageText = update.getMessage().getText(); // Get the text content of the user's message
             SendMessage response = new SendMessage(); //telegram response
-            SendMessage response1 = new SendMessage(); //telegram response
-            String chatId = update.getMessage().getChatId().toString();
+            String chatId = update.getMessage().getChatId().toString(); // Get the unique identifier for the chat where the message was received
+            //handle different user input
             switch(messageText){
                 case "/start":
                 case "/restart":
@@ -54,7 +59,7 @@ public class simpleBot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                     break;
-                default:
+                default: // Handle user input for number of processes, quantum number, and process details
                     if (numOfProcess == 0) {
                         int num = Integer.parseInt(messageText);
                         if(num > 0){
@@ -132,6 +137,7 @@ public class simpleBot extends TelegramLongPollingBot {
                     else if(numOfProcess > 0){
                         boolean check = processUserInput(messageText, chatId);
                         if(check == true) {
+                            // Handle process details and update the database
                             Main.handleInput(numOfProcess, processID, burstTime, arrivalTime);
                         }
                         else{
@@ -143,9 +149,11 @@ public class simpleBot extends TelegramLongPollingBot {
                             try{
                                 Main.selectAll(numOfProcess, quantumNum);
                                 String displayResponse = Main.processResTime(numOfProcess);
+                                String botToken = getBotToken();
+                                String botName = extractBotName(botToken);
                                 response.setChatId(chatId);
                                 response.setText("All process details added successfully.\n" +
-                                        "Calculating averages...\n\n" +
+                                        "Calculating...\n\n" +
                                         displayResponse +
                                         "Average Response Time: " +
                                         Main.averageResponse +
@@ -153,8 +161,8 @@ public class simpleBot extends TelegramLongPollingBot {
                                         Main.averageWait +
                                         "\nAverage Turnaround Time: " +
                                         Main.averageTurn +
-                                        "\n\nThank you for using MySecondBot!\n" +
-                                        "Please type \n /restart to implement new processes or \n /terminate to end this session");
+                                        "\n\nThank you for using" + botName +"!\n" +
+                                        "Please type /restart\n to implement new processes or \n /terminate to end this session");
                                 execute(response);
                                 resetBotState(); // Reset for the next interaction
                             }catch(TelegramApiException e){
@@ -171,6 +179,7 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
+    //Asks the user to input quantum number
     private void askForQuantumNum(String chatId) {
         SendMessage response = new SendMessage();
         response.setChatId(String.valueOf(chatId));
@@ -182,9 +191,10 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
+    //Asks the user to input details for a specific process in the chat
     private void askForProcessDetails(String chatId) {
         SendMessage response = new SendMessage();
-        response.setChatId(String.valueOf(chatId));
+        response.setChatId(String.valueOf(chatId)); // Set the chat ID for the response
         response.setText("Please input the process ID, burst time, and arrival time for process "
                 + (currentProcessIndex + 1) + " \n\n"
                 + "Format: "
@@ -197,11 +207,12 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
+    //validate its format and processes user input in the format: ProcessID_BurstTime_ArrivalTime
     private boolean processUserInput(String userInput, String chatId) {
         boolean check = true;
         // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
         String[] parts = userInput.split("_");
-        // Check if the input contains the underscore character
+        // Check if the input contains the underscore character or has the correct number of parts
         if (!userInput.contains("_") || parts.length != 3) {
             // Handle the case where the input format is incorrect
             SendMessage response = new SendMessage();
@@ -239,8 +250,21 @@ public class simpleBot extends TelegramLongPollingBot {
         return check;
     }
 
+    //this method is to extract the bot name
+    public static String extractBotName(String botToken) {
+        // Check if the token is not null and has the expected format
+        if (botToken != null && botToken.contains(":")) {
+            // Split the token using colon as a delimiter
+            String[] parts = botToken.split(":");
+            // The first part should be the bot username
+            return parts[0];
+        }
+        return null;  // Return null if the token format is not as expected
+    }
+
+    //Resets the state variables of the Telegram bot to their default values.
+    //This method is typically called to clear any previously set values and prepare the bot for a new interaction or task.
     private void resetBotState() {
-        System.out.println("aabbcc");
         numOfProcess = 0;
         quantumNum = 0;
         processID = "";
