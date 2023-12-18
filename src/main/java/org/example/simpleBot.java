@@ -149,8 +149,6 @@ public class simpleBot extends TelegramLongPollingBot {
                             try{
                                 Main.selectAll(numOfProcess, quantumNum);
                                 String displayResponse = Main.processResTime(numOfProcess);
-                                String botToken = getBotToken();
-                                String botName = extractBotName(botToken);
                                 response.setChatId(chatId);
                                 response.setText("All process details added successfully.\n" +
                                         "Calculating...\n\n" +
@@ -161,7 +159,7 @@ public class simpleBot extends TelegramLongPollingBot {
                                         Main.averageWait +
                                         "\nAverage Turnaround Time: " +
                                         Main.averageTurn +
-                                        "\n\nThank you for using" + botName +"!\n" +
+                                        "\n\nThank you for using MySecondBot" +"!\n" +
                                         "Please type /restart\n to implement new processes or \n /terminate to end this session");
                                 execute(response);
                                 resetBotState(); // Reset for the next interaction
@@ -251,7 +249,7 @@ public class simpleBot extends TelegramLongPollingBot {
     }
 
     //this method is to extract the bot name
-    public static String extractBotName(String botToken) {
+    /*public static String extractBotName(String botToken) {
         // Check if the token is not null and has the expected format
         if (botToken != null && botToken.contains(":")) {
             // Split the token using colon as a delimiter
@@ -260,7 +258,7 @@ public class simpleBot extends TelegramLongPollingBot {
             return parts[0];
         }
         return null;  // Return null if the token format is not as expected
-    }
+    }*/
 
     //Resets the state variables of the Telegram bot to their default values.
     //This method is typically called to clear any previously set values and prepare the bot for a new interaction or task.

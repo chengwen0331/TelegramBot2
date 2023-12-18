@@ -22,6 +22,7 @@ public class Result {
         this.responseTime = new int[numOfProcess];
     }
 
+    //Calculates and updates the results
     public void calculateResults() {
         for(int i = 0; i < numOfProcess; i++){
             System.out.println("Burst Time is " + burstTime[i]);
@@ -49,31 +50,33 @@ public class Result {
                 +"\nAverage Response Time : "+(avgResponse));
     }
 
+    //get average turnaround time
     public float getAvgTurnTime(){
         return Float.parseFloat(String.format("%.2f", avgTurn));
     }
 
+    //get average waiting time
     public float getAvgWaitTime(){
         return Float.parseFloat(String.format("%.2f", avgWait));
     }
 
+    //get average response time
     public float getAvgResTime(){
         return Float.parseFloat(String.format("%.2f", avgResponse));
     }
 
+    //get waiting time array
     public int [] getWaitTime(){
         return waitTime;
     }
 
+    //get turnaround time array
     public int [] getTurnTime(){
         return turnTime;
     }
 
+    //get response time array
     public int [] getResponseTime(){
-
-        for(int i = 0; i < numOfProcess; i++){
-            System.out.println("response time:" + responseTime[i]);
-        }
         return responseTime;
 
     }

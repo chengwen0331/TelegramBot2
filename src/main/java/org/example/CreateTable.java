@@ -20,7 +20,6 @@ public class CreateTable {
         String sql2 = "CREATE TABLE IF NOT EXISTS process_data (\n"
                 + " id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
                 + " operationID INTEGER, \n"
-                //+ " numOfProcess INTEGER, \n"
                 + " processID TEXT, \n"
                 + " burstTime INTEGER, \n"
                 + " arrivalTime INTEGER, \n"

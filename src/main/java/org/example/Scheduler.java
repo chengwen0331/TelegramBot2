@@ -31,6 +31,7 @@ public class Scheduler {
         this.startTimeSet = new boolean[numOfProcess];
     }
 
+    //Runs the Round Robin scheduling algorithm for a set of processes
     public void runScheduler() {
         // Implement Round Robin scheduling algorithm
         for(int i = 0; i < numOfProcess; i++){
@@ -43,8 +44,9 @@ public class Scheduler {
             timer++;
         }
 
-        queue[0] = 1;
+        queue[0] = 1; // Schedule the first process in the queue
         while(true){
+            // Check if all processes are completed
             boolean flag = true;
             for(int i = 0; i < numOfProcess; i++){
                 if(rem_burstTime[i] != 0){
@@ -55,6 +57,7 @@ public class Scheduler {
             if(flag) {
                 break;
             }
+            // Execute processes in the queue
             for(int i = 0; (i < numOfProcess) && (queue[i] != 0); i++){
                 int ctr = 0; //counter value to keep track of how much time has been spent on the current process within the time quantum
                 // Check if start time has already been set for the process
@@ -64,6 +67,7 @@ public class Scheduler {
                     startTime[i] = timer;
                     startTimeSet[i] = true;
                 }
+                // Execute the process within the time quantum
                 if (hasArrivals(arrivalTime)) {
                     while((ctr < quantum) && (rem_burstTime[queue[0]-1] > 0)){
                         rem_burstTime[queue[0]-1] -= 1; //runs until either the process completes its burst
@@ -73,6 +77,7 @@ public class Scheduler {
                         //Updating the ready queue until all the processes arrive
                         checkNewArrival(timer, arrivalTime, numOfProcess, maxProcessIndex, queue);
                     }
+                    // Update completion time and maintain the queue
                     if((rem_burstTime[queue[0]-1] == 0) && (complete[queue[0]-1] == false)){
                         completeTime[queue[0]-1] = timer;        //turn currently stores exit times
                         complete[queue[0]-1] = true;
@@ -98,13 +103,12 @@ public class Scheduler {
                 }
             }
         }
-        for(int i = 0; i < numOfProcess; i++){
-
-        }
     }
 
+    //Updates the process queue based on the arrival of new processes
     public void queueUpdation(int queue[],int timer,int arrival[],int numOfProcess, int maxProccessIndex){
         int zeroIndex = -1; //a flag indicating whether an available slot (zero) has been found in the queue array
+        // Check for an available slot in the queue
         for(int i = 0; i < numOfProcess; i++){
             if(queue[i] == 0){
                 zeroIndex = i; // Found an available slot
@@ -153,10 +157,12 @@ public class Scheduler {
         return completeTime;
     }
 
+    //get execute time, first time they get the resources
     public int[] getStartTime() {
         return startTime;
     }
 
+    //Checks if there are multiple arrival times
     private boolean hasArrivals(int arrivalTime[]) {
         for (int i = 0; i < numOfProcess - 1; i++) {
             if (arrivalTime[i] != arrivalTime[i+1]) {
@@ -166,6 +172,7 @@ public class Scheduler {
         return false;
     }
 
+    //Checks if a process with a specific index is present in the given process queue
     public static boolean isProcessInQueue(int processIndex, int queue[]) {
         for (int i : queue) {
             if (i == processIndex) {
