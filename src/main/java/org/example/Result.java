@@ -20,7 +20,6 @@ public class Result {
         this.turnTime = turnaroundTime;
         this.waitTime = new int[numOfProcess];
         this.responseTime = new int[numOfProcess];
-        // Implement if needed
     }
 
     public void calculateResults() {

@@ -31,27 +31,6 @@ public class Scheduler {
         this.startTimeSet = new boolean[numOfProcess];
     }
 
-    // Create setter methods for each data field
-    public void setNumOfProcess(int numOfProcess) {
-        this.numOfProcess = numOfProcess;
-    }
-
-    public void setQuantumNum(int quantumNum) {
-        this.quantum = quantumNum;
-    }
-
-    public void setProcessID(String[] processID) {
-        this.processID = processID;
-    }
-
-    public void setBurstTime(int[] burstTime) {
-        this.burstTime = burstTime;
-    }
-
-    public void setArrivalTime(int[] arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
     public void runScheduler() {
         // Implement Round Robin scheduling algorithm
         for(int i = 0; i < numOfProcess; i++){
@@ -78,7 +57,6 @@ public class Scheduler {
             }
             for(int i = 0; (i < numOfProcess) && (queue[i] != 0); i++){
                 int ctr = 0; //counter value to keep track of how much time has been spent on the current process within the time quantum
-                //startTime[i] = timer;//is it i use timer variable so it keep accumulating?
                 // Check if start time has already been set for the process
                 if (startTimeSet[i] == false) {
                     System.out.println(startTimeSet[i]);
@@ -87,7 +65,6 @@ public class Scheduler {
                     startTimeSet[i] = true;
                 }
                 if (hasArrivals(arrivalTime)) {
-                    //startTime[i] = timer;
                     while((ctr < quantum) && (rem_burstTime[queue[0]-1] > 0)){
                         rem_burstTime[queue[0]-1] -= 1; //runs until either the process completes its burst
                         timer += 1;
@@ -142,12 +119,10 @@ public class Scheduler {
     //update the ready queue based on new arrivals
     public void checkNewArrival(int timer, int arrival[], int numOfProcess, int maxProccessIndex,int queue[]){
 
-        //if(timer <= arrival[numOfProcess-1]) { //checks if the current time (timer) is less than or equal to the arrival time of the last process in the array
         boolean newArrival = false; //still processes that have not arrived yet
         for (int j = (maxProccessIndex + 1); j < numOfProcess; j++) {
             if (arrival[j] <= timer) { //checks if the arrival time of the process at index j is less than or equal to the current time. If true, it means that the process has arrived
                 if (!isProcessInQueue(j + 1, queue) && maxProccessIndex < j) {
-                    //if (maxProccessIndex < j) { //checks if the index of the newly arrived process (j) is greater than the current maxProccessIndex
                     maxProccessIndex = j; //If true, it updates maxProccessIndex to the new index.
                     newArrival = true;
                 }
