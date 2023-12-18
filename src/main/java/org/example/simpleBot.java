@@ -5,7 +5,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-//handle updates received from the Telegram server
+/**
+ * A class representing a simple Telegram bot that extends TelegramLongPollingBot.
+ * This class is responsible for handling updates received from the Telegram server.
+ */
 public class simpleBot extends TelegramLongPollingBot {
 
     private static int numOfProcess; //store the total number of processes to be handled
@@ -16,19 +19,31 @@ public class simpleBot extends TelegramLongPollingBot {
     private static int arrivalTime; //store the arrival time of the process
     private static int quantumNum; //store the quantum number for process scheduling
     @Override
-    //get bot username
+    /**
+     * This method is to get the username of the Telegram bot.
+     *
+     * @return The Telegram bot username.
+     */
     public String getBotUsername() {
         return "Wen0331_Bot";
     }
 
     @Override
-    //get bot token
+    /**
+     * This method is to get the token used to authenticate the Telegram bot with the Bot API.
+     *
+     * @return The Telegram bot token.
+     */
     public String getBotToken() {
         return "6959837168:AAE4lYxIBO_W_tINGnu0HhVSxuF2d-fbOEo";
     }
 
     @Override
-    //Handles incoming updates from the user in the Telegram chat
+    /**
+     * This method is to handle incoming updates from the user in the Telegram chat.
+     *
+     * @param update The update received from Telegram, containing user messages and other events.
+     */
     public void onUpdateReceived(Update update) {
         // Check if the update contains a message from the user
         if (update.hasMessage()) {
@@ -177,7 +192,11 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    //Asks the user to input quantum number
+    /**
+     * This method is to send a message to the Telegram chat, prompting the user to input the quantum number.
+     *
+     * @param chatId The unique identifier for the Telegram chat.
+     */
     private void askForQuantumNum(String chatId) {
         SendMessage response = new SendMessage();
         response.setChatId(String.valueOf(chatId));
@@ -189,7 +208,12 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    //Asks the user to input details for a specific process in the chat
+    /**
+     * This method is to ask the user to input details for a specific process in the chat.
+     * Sends a prompt with instructions for the required format.
+     *
+     * @param chatId The unique identifier for the chat where the prompt should be sent.
+     */
     private void askForProcessDetails(String chatId) {
         SendMessage response = new SendMessage();
         response.setChatId(String.valueOf(chatId)); // Set the chat ID for the response
@@ -205,7 +229,14 @@ public class simpleBot extends TelegramLongPollingBot {
         }
     }
 
-    //validate its format and processes user input in the format: ProcessID_BurstTime_ArrivalTime
+    /**
+     * This method is to process user input in the format: ProcessID_BurstTime_ArrivalTime.
+     * Parses the input, validates its format, and updates the bot's state variables.
+     *
+     * @param userInput The user input string to be processed.
+     * @param chatId The unique identifier for the chat where the input was received.
+     * @return Returns true if the input is successfully processed, false otherwise.
+     */
     private boolean processUserInput(String userInput, String chatId) {
         boolean check = true;
         // Assuming userInput is in the format: ProcessID_BurstTime_ArrivalTime
@@ -260,8 +291,11 @@ public class simpleBot extends TelegramLongPollingBot {
         return null;  // Return null if the token format is not as expected
     }*/
 
-    //Resets the state variables of the Telegram bot to their default values.
-    //This method is typically called to clear any previously set values and prepare the bot for a new interaction or task.
+    /**
+     * This method is to reset the state variables of the Telegram bot to their default values.
+     * This method is typically called to clear any previously set values and prepare
+     * the bot for a new interaction or task.
+     */
     private void resetBotState() {
         numOfProcess = 0;
         quantumNum = 0;

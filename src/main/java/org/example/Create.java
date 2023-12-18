@@ -5,7 +5,15 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Class responsible for creating a new SQLite database.
+ */
 public class Create {
+    /**
+     * This method is to create a new SQLite database with the specified file name.
+     *
+     * @param fileName The name of the SQLite database file to be created.
+     */
     public static void createNewDatabase(String fileName) {
 
         String url = "jdbc:sqlite:C:/sqlite/" + fileName;
@@ -23,6 +31,11 @@ public class Create {
         }
     }
 
+    /**
+     * The main method to demonstrate creating a new SQLite database.
+     *
+     * @param args The command line arguments (not used in this example).
+     */
     public static void main(String[] args) {
         createNewDatabase("telegrambot5.db");
     }

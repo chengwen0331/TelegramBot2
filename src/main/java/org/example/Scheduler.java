@@ -1,5 +1,9 @@
 package org.example;
 
+/**
+ * The Scheduler class represents a scheduler that uses the Round Robin algorithm.
+ * It manages the execution of processes.
+ */
 public class Scheduler {
     private int numOfProcess;
     private int quantum;
@@ -15,6 +19,15 @@ public class Scheduler {
     private int [] startTime;
     private boolean [] startTimeSet;
 
+    /**
+     * Initializes a Scheduler object with the specified parameters.
+     *
+     * @param numOfProcess The total number of processes.
+     * @param quantumNum The time quantum for the Round Robin scheduling algorithm.
+     * @param processID An array containing the process IDs.
+     * @param burstTime An array containing the burst times for each process.
+     * @param arrivalTime An array containing the arrival times for each process.
+     */
     public Scheduler(int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Constructor
         this.numOfProcess = numOfProcess;
@@ -31,7 +44,9 @@ public class Scheduler {
         this.startTimeSet = new boolean[numOfProcess];
     }
 
-    //Runs the Round Robin scheduling algorithm for a set of processes
+    /**
+     * This method is to run the Round Robin scheduling algorithm for a set of processes.
+     */
     public void runScheduler() {
         // Implement Round Robin scheduling algorithm
         for(int i = 0; i < numOfProcess; i++){
@@ -105,7 +120,15 @@ public class Scheduler {
         }
     }
 
-    //Updates the process queue based on the arrival of new processes
+    /**
+     * This method is to update the process queue based on the arrival of new processes.
+     *
+     * @param queue             The array representing the process queue.
+     * @param timer             The current timer value.
+     * @param arrival           The array containing arrival times of processes.
+     * @param numOfProcess      The total number of processes.
+     * @param maxProccessIndex   The index of the process with the maximum arrival time.
+     */
     public void queueUpdation(int queue[],int timer,int arrival[],int numOfProcess, int maxProccessIndex){
         int zeroIndex = -1; //a flag indicating whether an available slot (zero) has been found in the queue array
         // Check for an available slot in the queue
@@ -120,7 +143,15 @@ public class Scheduler {
         queue[zeroIndex] = maxProccessIndex + 1; // Update the queue with the index of the newly arrived process
     }
 
-    //update the ready queue based on new arrivals
+    /**
+     * This method is to check for the arrival of new processes and updates the process queue accordingly.
+     *
+     * @param timer Current time in the scheduling algorithm.
+     * @param arrival Array containing arrival times of processes.
+     * @param numOfProcess Total number of processes in the system.
+     * @param maxProccessIndex Index of the last processed or scheduled process.
+     * @param queue Array representing the process queue.
+     */
     public void checkNewArrival(int timer, int arrival[], int numOfProcess, int maxProccessIndex,int queue[]){
 
         boolean newArrival = false; //still processes that have not arrived yet
@@ -137,12 +168,14 @@ public class Scheduler {
 
         }
 
-        //}
     }
 
-    //Maintaining the entries of processes after each premption in the ready Queue
-    // Shifts the elements in the ready queue to maintain order
-    //bringing the next process to the front after a time quantum has been completed.
+    /**
+     * This method is to maintain the integrity of the process queue by shifting elements to the left.
+     *
+     * @param queue Array representing the process queue.
+     * @param numOfProcess Total number of processes in the system.
+     */
     public void queueMaintainence(int queue[], int numOfProcess){
         //Ensures that the loop index (i) does not go beyond the last valid index of the queue array.
         //Ensures that the next element in the queue is not 0, indicating the end of the active processes in the queue.
@@ -157,12 +190,21 @@ public class Scheduler {
         return completeTime;
     }
 
-    //get execute time, first time they get the resources
+    /**
+     * This method is to retrieve the array containing the start times for each process.
+     *
+     * @return An array of integers representing the start times for each process.
+     */
     public int[] getStartTime() {
         return startTime;
     }
 
-    //Checks if there are multiple arrival times
+    /**
+     * This method is to check if there are multiple arrival times.
+     *
+     * @param arrivalTime   The array containing arrival times of processes.
+     * @return              True if there are multiple arrival times, indicating new arrivals; otherwise, false.
+     */
     private boolean hasArrivals(int arrivalTime[]) {
         for (int i = 0; i < numOfProcess - 1; i++) {
             if (arrivalTime[i] != arrivalTime[i+1]) {
@@ -172,7 +214,13 @@ public class Scheduler {
         return false;
     }
 
-    //Checks if a process with a specific index is present in the given process queue
+    /**
+     * This method is to check if a process with a specific index is present in the given process queue.
+     *
+     * @param processIndex  The index of the process to check.
+     * @param queue         The array representing the process queue.
+     * @return              True if the process is in the queue; otherwise, false.
+     */
     public static boolean isProcessInQueue(int processIndex, int queue[]) {
         for (int i : queue) {
             if (i == processIndex) {

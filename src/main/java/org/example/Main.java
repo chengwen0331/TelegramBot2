@@ -1,5 +1,7 @@
 package org.example;
-
+/**
+ * Import statements for required Java and Telegram API classes.
+ */
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
@@ -30,6 +32,18 @@ public class Main {
     static List<Integer> arrivalTimeList = new ArrayList<>(); // List to store arrival times
     static List<Integer> responseTimeList = new ArrayList<>(); // List to store response times
     static Connection conn = connect(); // Database connection instance
+
+    /**
+     * The main method to start the application.
+     *
+     * - Initiates a connection to the SQLite database.
+     * - Generates the required tables using the CreateTable class.
+     * - Registers the Telegram bot using the simpleBot class.
+     * - Adds a shutdown hook to ensure the database connection is closed upon program termination.
+     *
+     * @param args Command-line arguments (not used in this application).
+     * @throws TelegramApiException If there is an issue with the Telegram API.
+     */
     public static void main(String[] args) throws TelegramApiException {
         // Establish a connection to the SQLite database
         connect();
@@ -58,7 +72,14 @@ public class Main {
         }));
     }
 
-    //Inserts numOfProcess and quantumNum into the 'processnum_data' table in the SQLite database
+    /**
+     * This method is to process the input related to the number of processes and quantum number.
+     *
+     * Inserts the specified values into the 'processnum_data' table in the SQLite database.
+     *
+     * @param numOfProcess The number of processes to be processed.
+     * @param quantumNum   The quantum number to be processed.
+     */
     public static void processInput(int numOfProcess, int quantumNum) {
 
         String sql = "INSERT INTO processnum_data(numOfProcess, quantumNum) VALUES(?,?)";
@@ -73,7 +94,17 @@ public class Main {
         }
     }
 
-    //Insert the specified values into the 'process_data' table in the SQLite database
+    /**
+     * This method is to handle the input related to individual processes.
+     *
+     * Inserts the specified values into the 'process_data' table in the SQLite database.
+     * The operationID is obtained by querying the 'processnum_data' table based on the number of processes.
+     *
+     * @param numOfProcess The total number of processes involved in the operation.
+     * @param processID    The unique identifier for the current process.
+     * @param burstTime     The time required for the current process to complete its execution (burst time).
+     * @param arrivalTime   The time at which the current process arrives for execution.
+     */
     public static void handleInput(int numOfProcess, String processID, int burstTime, int arrivalTime) {
         data = selectData(numOfProcess); // Obtain the operationID based on the number of processes
         String sql = "INSERT INTO process_data(operationID, processID, burstTime, arrivalTime) VALUES(?,?,?,?)";
@@ -89,7 +120,15 @@ public class Main {
         }
     }
 
-    //Retrieve the operationID from the 'processnum_data' table
+    /**
+     * This method is to select the operationID from the 'processnum_data' table based on the number of processes.
+     *
+     * Executes a SQL query to retrieve the operationID from the 'processnum_data' table,
+     * ordering the results by operationID in descending order and limiting the result set to 1.
+     *
+     * @param number The number of processes for which the operationID needs to be retrieved.
+     * @return The retrieved operationID based on the specified number of processes.
+     */
     public static int selectData(int number) {
         int data = 0;
         String sql = "SELECT operationID FROM processnum_data WHERE numOfProcess = ? ORDER BY operationID DESC LIMIT 1";
@@ -110,7 +149,16 @@ public class Main {
         return data;
     }
 
-    //Selects all process data from the 'process_data' table
+    /**
+     * This method is to select all process data from the 'process_data' table for a specific operationID.
+     *
+     * Executes a SQL query to retrieve all rows from the 'process_data' table where
+     * the operationID matches the specified data. The retrieved data is then processed
+     * and stored in corresponding arrays for further use.
+     *
+     * @param num The number of processes to be retrieved.
+     * @param quantum The quantum number associated with the operation.
+     */
     public static void selectAll(int num, int quantum){
         String sql = "SELECT * FROM process_data WHERE operationID = ?";
         processID= new String[num];
@@ -146,8 +194,23 @@ public class Main {
         }
     }
 
-    //Processes the retrieved data, performs scheduling, result calculation,and
-    //updates the results in the database.
+    /**
+     * This method is to process the retrieved data, performs scheduling and result calculation,
+     * and update the results in the database.
+     *
+     * This method takes the retrieved data, creates a Scheduler instance, and runs
+     * the scheduling algorithm. It then calculates results using a Result instance
+     * and displays the results. The average wait, turnaround, and response times
+     * along with individual process wait, turnaround, and response times are stored.
+     * The final results are then updated in the database using the updateResult method.
+     *
+     * @param operationID The unique identifier for the current operation.
+     * @param numOfProcess The number of processes to be scheduled.
+     * @param quantumNum The quantum number used in the scheduling algorithm.
+     * @param processID An array containing process IDs.
+     * @param burstTime An array containing burst times for each process.
+     * @param arrivalTime An array containing arrival times for each process.
+     */
     public static void processRetrievedData(int operationID, int numOfProcess, int quantumNum, String [] processID, int [] burstTime, int [] arrivalTime) {
         // Create a temporary array to store burst times before scheduling
         int[] tem_burstTime = new int[numOfProcess];
@@ -179,7 +242,18 @@ public class Main {
         }
     }
 
-    //Handles the results of a scheduling operation and updates the database
+    /**
+     * This method is to handle the results of a scheduling operation and updates the database.
+     *
+     * This method takes the operationID along with the average wait, turnaround, and
+     * response times. It then inserts these results into the 'process_result' table in
+     * the database.
+     *
+     * @param operationID The unique identifier for the current operation.
+     * @param averageWait The average waiting time for all processes.
+     * @param averageTurn The average turnaround time for all processes.
+     * @param averageResponse The average response time for all processes.
+     */
     public static void handleResult(int operationID, float averageWait, float averageTurn, float averageResponse) {
         String sql = "INSERT INTO process_result(operationID, avgResponse, avgWaiting, avgTurnaround) VALUES(?,?,?,?)";
         try{
@@ -194,7 +268,19 @@ public class Main {
         }
     }
 
-    //Updates the result data for a specific process in the 'process_data' table
+    /**
+     * This method is to update the result data for a specific process in the 'process_data' table.
+     *
+     * This method takes the unique identifier (id) of a process, along with the operationID,
+     * response time, waiting time, and turnaround time. It then updates the corresponding row
+     * in the 'process_data' table with the new values.
+     *
+     * @param id The unique identifier of the process row in the 'process_data' table.
+     * @param operationID The unique identifier for the current operation.
+     * @param responseTime The response time for the specific process.
+     * @param waitTime The waiting time for the specific process.
+     * @param turnTime The turnaround time for the specific process.
+     */
     public static void updateResult(int id, int operationID, int responseTime, int waitTime, int turnTime) {
 
         String sql = "UPDATE process_data SET responseTime = ?, waitingTime = ?, turnaroundTime = ? WHERE operationID = ? AND id = ?";
@@ -211,7 +297,16 @@ public class Main {
         }
     }
 
-    //Retrieves id associated with a specific operationID from the 'process_data' table
+    /**
+     * This method is to retrieve the id associated with a specific operationID from the 'process_data' table.
+     *
+     * This method takes an operationID as a parameter and queries the 'process_data' table to retrieve
+     * the ID of the corresponding row. The SQL query retrieves the ID with the lowest value (ORDER BY ASC LIMIT 1),
+     * and the retrieved ID is returned.
+     *
+     * @param operationID The unique identifier for the operation.
+     * @return The unique identifier (ID) associated with the specified operationID.
+     */
     public static int retrieveID(int operationID) {
         int value = 0; // Initialize the variable to store the retrieved ID
         String sql = "SELECT id FROM process_data WHERE operationID = ? ORDER BY operationID ASC LIMIT 1";
@@ -233,7 +328,15 @@ public class Main {
         return value;
     }
 
-    //Retrieves an array of response times associated with a specific operationID from the 'process_data' table
+    /**
+     * This method is to retrieve an array of response times associated with a specific operationID from the 'process_data' table.
+     *
+     * This method queries the 'process_data' table to retrieve all response times corresponding to a specific
+     * operationID. The response times are collected into an array, and this array is returned by the method.
+     * The SQL query filters results based on the provided operationID.
+     *
+     * @return An array of response times associated with the specified operationID.
+     */
     public static int [] getResTime(){
         String sql = "SELECT responseTime FROM process_data WHERE operationID = ?";
 
@@ -258,8 +361,17 @@ public class Main {
         return new int[0];
     }
 
-    //retrieves response times for each process
-    //and constructs a formatted response string containing response times for each process.
+    /**
+     * This method is to process and retrieve response times for each process in the system.
+     *
+     * This method calls the getResTime method to retrieve an array of response times
+     * associated with a specific operationID. It then prints each response time to the
+     * console and constructs a formatted response string containing response times for
+     * each process. The final response string is returned.
+     *
+     * @param numOfProcess The number of processes in the system.
+     * @return A formatted string containing response times for each process.
+     */
     public static String processResTime(int numOfProcess){
         int[] processResponse = getResTime(); // Retrieve an array of response times using the getResTime method
         for(int j = 0; j < numOfProcess; j++){
@@ -273,7 +385,14 @@ public class Main {
         return response;
     }
 
-    //Establishes a connection to the SQLite database
+    /**
+     * This method is to establish a connection to the SQLite database.
+     *
+     * This method creates a connection to the SQLite database using the specified URL.
+     * If the connection is successful, it prints a confirmation message to the console.
+     *
+     * @return The established database connection.
+     */
     public static Connection connect() {
         Connection conn = null;
         try {

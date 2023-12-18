@@ -4,8 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+/**
+ * Class responsible for creating tables in the SQLite database.
+ */
 public class CreateTable {
 
+    /**
+     * This method is to create new tables in the SQLite database to store process-related data.
+     */
     public void createNewTable() {
         // SQLite connection
         String url = "jdbc:sqlite:C:/sqlite/telegrambot5.db";
@@ -47,10 +53,5 @@ public class CreateTable {
             System.out.println(e.getMessage());
         }
     }
-
-    /*public static void main(String[] args) {
-
-        createNewTable();
-    }*/
 }
 
